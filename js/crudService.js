@@ -60,8 +60,16 @@ export const updateTask = async (id, newData) => {
 };
 
 /**
- * [DELETE] Função a ser implementada no próximo passo!
+ * [DELETE] Remove um documento de tarefa do Firestore.
+ * @param {string} id - O ID do documento a ser excluído.
+ * @returns {Promise<void>}
  */
+
 export const deleteTask = async (id) => {
-    throw new Error("Função DELETE não implementada.");
+    try {
+        await tasksCollection.doc(id).delete();
+    } catch (error) {
+        console.error("Erro ao deletar tarefa:", error);
+        throw new Error("Não foi possível excluir a tarefa.");
+    }
 };

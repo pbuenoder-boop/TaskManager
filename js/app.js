@@ -84,6 +84,25 @@ const handleAddTask = async (e) => {
 };
 
 /**
+ * Manipula o clique no botão 'Excluir' (DELETE).
+ * @param {string} id - O ID da tarefa a ser excluída.
+ */
+const handleDeleteTask = async (id) => {
+    if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+        try {
+            // 1. CHAMADA AO BACK-END (DELETE)
+            await deleteTask(id); 
+            
+            // 2. Recarrega a lista
+            await renderTasks();
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+};
+
+/**
  * Manipula o clique nos botões 'Concluir' / 'Desfazer' (Toggle isDone) (UPDATE)
  * @param {string} id - O ID da tarefa.
  * @param {boolean} currentStatus - O status atual da tarefa.
@@ -118,14 +137,12 @@ const addGlobalListeners = () => {
         }
 
         if (target.classList.contains('delete-btn')) {
-            // O DELETE será implementado aqui no próximo passo
-            // const taskId = target.dataset.id;
-            // handleDeleteTask(taskId); 
-            console.log(`Botão Excluir clicado para o ID: ${target.dataset.id}`);
-            alert('A exclusão será ativada no próximo passo!');
+            const taskId = target.dataset.id;
+            handleDeleteTask(taskId); //função delete pro CRUD
         }
     });
 };
+
 
 
 // --------------------------------------------------------
