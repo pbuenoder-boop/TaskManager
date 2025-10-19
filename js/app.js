@@ -4,7 +4,8 @@ import { getTasks, addTask, updateTask, deleteTask } from './crudService.js';
 const tasksListEl = document.getElementById('tasks-list');
 const taskForm = document.getElementById('task-form');
 const taskInput = document.getElementById('task-input');
-const loadingMessage = document.getElementById('loading-message');
+// Nota: O elemento 'loading-message' deve ser removido após a renderização
+// Ou ser tratado dentro do renderTasks. Vamos reusar tasksListEl para simplicidade.
 
 
 /**
@@ -13,12 +14,12 @@ const loadingMessage = document.getElementById('loading-message');
  * @returns {string} HTML do item da lista.
  */
 const createTaskHtml = (task) => {
-    const isDoneClass = task.isDone ? 'task-done' : '';
+    const isDoneClass = task.isDone ? 'task-done bg-gray-200' : 'bg-white hover:bg-gray-50'; // Adiciona classe para riscar o texto e cor de fundo
     const buttonText = task.isDone ? 'Desfazer' : 'Concluir';
     const buttonColor = task.isDone ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
 
     return `
-        <div class="flex items-center justify-between p-4 mb-4 bg-gray-50 border border-gray-200 rounded-lg ${isDoneClass}" data-task-id="${task.id}">
+        <div class="flex items-center justify-between p-4 mb-4 border border-gray-200 rounded-lg transition duration-150 ease-in-out ${isDoneClass}" data-task-id="${task.id}">
             <span class="text-lg text-gray-700">${task.description}</span>
             <div class="flex gap-2">
                 <button class="update-btn ${buttonColor} text-white text-xs font-bold py-2 px-3 rounded" 
@@ -42,10 +43,9 @@ const createTaskHtml = (task) => {
  */
 const renderTasks = async () => {
     try {
-        tasksListEl.innerHTML = ''; // Limpa a lista
-        loadingMessage.textContent = 'Carregando tarefas...';
+        tasksListEl.innerHTML = '<p class="text-gray-500 italic text-center">Carregando tarefas...</p>';
         
-        const tasks = await getTasks(); // CHAMADA AO BACK-END (crudService.js)
+        const tasks = await getTasks(); // CHAMADA AO BACK-END (READ)
         
         if (tasks.length === 0) {
             tasksListEl.innerHTML = '<p class="text-gray-500 italic text-center">Nenhuma tarefa encontrada. Adicione uma!</p>';
@@ -60,10 +60,81 @@ const renderTasks = async () => {
     }
 };
 
+/**
+ * Manipula o envio do formulário para adicionar uma nova tarefa. (CREATE)
+ * @param {Event} e - O evento de envio do formulário.
+ */
+const handleAddTask = async (e) => {
+    e.preventDefault();
+
+    const description = taskInput.value.trim();
+
+    if (description) {
+        try {
+            // CHAMADA AO BACK-END (CREATE)
+            await addTask(description); 
+            
+            taskInput.value = '';
+            await renderTasks(); // Recarrega a lista para mostrar a nova tarefa
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+};
+
+/**
+ * Manipula o clique nos botões 'Concluir' / 'Desfazer' (Toggle isDone) (UPDATE)
+ * @param {string} id - O ID da tarefa.
+ * @param {boolean} currentStatus - O status atual da tarefa.
+ */
+const handleToggleDone = async (id, currentStatus) => {
+    try {
+        const newStatus = !currentStatus;
+        
+        // CHAMADA AO BACK-END (UPDATE)
+        await updateTask(id, { isDone: newStatus }); 
+        
+        await renderTasks(); // Recarrega a lista
+
+    } catch (error) {
+        alert(error.message);
+    }
+};
+
+
+/**
+ * Adiciona listeners ao elemento pai para capturar cliques nos botões de AÇÃO (UPDATE e DELETE).
+ */
+const addGlobalListeners = () => {
+    tasksListEl.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        if (target.classList.contains('update-btn')) {
+            const taskId = target.dataset.id;
+            // Converte a string 'true'/'false' do dataset para boolean
+            const currentStatus = target.dataset.isDone === 'true'; 
+            handleToggleDone(taskId, currentStatus);
+        }
+
+        if (target.classList.contains('delete-btn')) {
+            // O DELETE será implementado aqui no próximo passo
+            // const taskId = target.dataset.id;
+            // handleDeleteTask(taskId); 
+            console.log(`Botão Excluir clicado para o ID: ${target.dataset.id}`);
+            alert('A exclusão será ativada no próximo passo!');
+        }
+    });
+};
+
 
 // --------------------------------------------------------
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO E EVENT LISTENERS
 // --------------------------------------------------------
 
-// Renderiza a lista de tarefas ao carregar a página (Primeiro uso do READ)
-document.addEventListener('DOMContentLoaded', renderTasks);
+document.addEventListener('DOMContentLoaded', () => {
+    renderTasks();
+    addGlobalListeners(); 
+});
+
+taskForm.addEventListener('submit', handleAddTask);
