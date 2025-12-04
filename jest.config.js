@@ -1,5 +1,5 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/tests/**/*.test.js'],
-  setupFilesAfterEnv: [],
+  testMatch: ['C:/Users/guilh/OneDrive/Área de Trabalho/Projetos/Projeto Back-End Bueno/tests/**/*.test.js'],
+  setupFilesAfterEnv: ['C:/Users/guilh/OneDrive/Área de Trabalho/Projetos/Projeto Back-End Bueno/tests/firebase.setup.js'],
 };
