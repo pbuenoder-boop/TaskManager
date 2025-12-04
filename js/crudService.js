@@ -2,11 +2,9 @@ import { tasksCollection, firebaseApp } from './firebaseConfig.js';
 
 /**
  * [READ] Busca todas as tarefas da coleção 'tasks' no Firestore.
- * @returns {Promise<Array>} Uma promessa que resolve para um array de objetos de tarefas.
  */
 export const getTasks = async () => {
     try {
-        // Ordena pela data de criação (mais recente primeiro)
         const snapshot = await tasksCollection.orderBy('createdAt', 'desc').get();
         
         const tasks = snapshot.docs.map(doc => ({
@@ -23,15 +21,18 @@ export const getTasks = async () => {
 
 /**
  * [CREATE] Adiciona uma nova tarefa ao Firestore.
- * @param {string} description - A descrição da nova tarefa.
- * @returns {Promise<string>} Uma promessa que resolve para o ID do novo documento.
  */
 export const addTask = async (description) => {
     try {
+        if (!description) {
+            throw new Error("A descrição da tarefa não pode estar vazia.");
+        }
+        
         const newTask = {
             description: description,
-            isDone: false, // Tarefa sempre começa como não concluída
-            createdAt: firebaseApp.firestore.FieldValue.serverTimestamp() // Timestamp do servidor
+            isDone: false,
+            // Acessa FieldValue através do objeto firebaseApp
+            createdAt: firebaseApp.firestore.FieldValue.serverTimestamp() 
         };
         
         const docRef = await tasksCollection.add(newTask);
@@ -39,19 +40,15 @@ export const addTask = async (description) => {
         return docRef.id;
     } catch (error) {
         console.error("Erro ao adicionar tarefa:", error);
-        throw new Error("Não foi possível adicionar a tarefa.");
+        throw new Error(error.message || "Não foi possível adicionar a tarefa.");
     }
 };
 
 /**
  * [UPDATE] Atualiza um documento de tarefa no Firestore.
- * @param {string} id - O ID do documento a ser atualizado.
- * @param {Object} newData - Objeto contendo os campos a serem atualizados (ex: {isDone: true}).
- * @returns {Promise<void>}
  */
 export const updateTask = async (id, newData) => {
     try {
-        // Usa o ID para fazer referência ao documento e atualiza com os novos dados
         await tasksCollection.doc(id).update(newData);
     } catch (error) {
         console.error("Erro ao atualizar tarefa:", error);
@@ -61,10 +58,7 @@ export const updateTask = async (id, newData) => {
 
 /**
  * [DELETE] Remove um documento de tarefa do Firestore.
- * @param {string} id - O ID do documento a ser excluído.
- * @returns {Promise<void>}
  */
-
 export const deleteTask = async (id) => {
     try {
         await tasksCollection.doc(id).delete();
