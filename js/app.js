@@ -46,6 +46,7 @@ const renderTasks = async () => {
         tasksListEl.innerHTML = '<p class="text-gray-500 italic text-center">Carregando tarefas...</p>';
         
         const tasks = await getTasks(); // CHAMADA AO BACK-END (READ)
+        updateStats(tasks);
         
         if (tasks.length === 0) {
             tasksListEl.innerHTML = '<p class="text-gray-500 italic text-center">Nenhuma tarefa encontrada. Adicione uma!</p>';
@@ -143,7 +144,19 @@ const addGlobalListeners = () => {
     });
 };
 
+/**
+ * Atualiza o painel de estatísticas (Inovação).
+ * @param {Array} tasks - A lista de tarefas carregada do back-end.
+ */
+const updateStats = (tasks) => {
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.isDone).length;
+    const pending = total - completed;
 
+    document.getElementById('stat-total').innerText = total;
+    document.getElementById('stat-completed').innerText = completed;
+    document.getElementById('stat-pending').innerText = pending;
+};
 
 // --------------------------------------------------------
 // INICIALIZAÇÃO E EVENT LISTENERS
