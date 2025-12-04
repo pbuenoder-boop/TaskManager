@@ -1,0 +1,28 @@
+{
+  "name": "projeto-back-end-bueno",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pbuenoder-boop/TaskManager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/pbuenoder-boop/TaskManager/issues"
+  },
+  "homepage": "https://github.com/pbuenoder-boop/TaskManager#readme",
+  "dependencies": {
+    "firebase-admin": "^13.6.0",
+    "jest": "^29.7.0"
+  }
+}
